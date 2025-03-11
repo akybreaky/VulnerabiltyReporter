@@ -135,7 +135,7 @@ def update_repo():
     if not os.path.exists(LOCAL_PATH):
         try:
             print("Cloning Advisory Database...")
-            subprocess.run(['git', 'clone', REPO_URL, LOCAL_PATH, '--depth 1', '-b main', '--single-branch'], check=True)
+            subprocess.run(['git', 'clone', REPO_URL, LOCAL_PATH, '--depth=1', '-b','main', '--single-branch'], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error: Failed to clone the repository.\n{e}", file=sys.stderr)
             return
