@@ -17,7 +17,7 @@ Note you may need to replace `python` with `python3` or `py` depending on your s
 ```cmd
 python -m pip install --upgrade pip
 python -m venv venv
-.venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -26,6 +26,11 @@ pip install -r requirements.txt
 ```bash
 python -m pip install --upgrade pip
 python -m venv venv
-source .venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+## References
+
+- [GitHub Advisory Database](https://github.com/github/advisory-database)
+- [CWE List](https://cwe.mitre.org/data/index.html)
