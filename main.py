@@ -154,6 +154,61 @@ def update_repo():
 
     update_local_db()
 
+def fetchAllCVEs():#simplified db to get only basic information
+    if not os.path.isfile(DB_PATH):
+        update_repo()
+    # Connect to the old database (advisory.db)
+    old_con = sqlite3.connect(DB_PATH)
+    old_cur = old_con.cursor()
+
+    # Retrieve selected fields from the advisories table
+    old_cur.execute("""
+        SELECT advisory_id, severity, cve_id, published, modified, withdrawn
+        FROM advisories
+    """)
+    filtered_advisories = old_cur.fetchall()
+
+    # Retrieve all data from the advisory_package table
+    old_cur.execute("SELECT * FROM advisory_package")
+    advisory_package = old_cur.fetchall()
+
+    # Connect to the new database (filtered_advisory.db)
+    new_con = sqlite3.connect(DATA_PATH + 'filtered_advisory.db')
+    new_cur = new_con.cursor()
+
+    # Create tables in the new database
+    new_cur.execute('''
+        CREATE TABLE IF NOT EXISTS advisories (
+            advisory_id TEXT PRIMARY KEY,
+            severity TEXT NOT NULL,
+            cve_id TEXT DEFAULT NULL,
+            published DATETIME NOT NULL,
+            modified DATETIME NOT NULL,
+            withdrawn DATETIME DEFAULT NULL
+        )
+    ''')
+
+    new_cur.execute('''
+        CREATE TABLE IF NOT EXISTS advisory_package (
+            advisory_id TEXT,
+            package_name TEXT,
+            package_ecosystem TEXT,
+            introduced_version TEXT,
+            fixed_version TEXT,
+            PRIMARY KEY (advisory_id, package_name, package_ecosystem),
+            FOREIGN KEY (advisory_id) REFERENCES advisories(advisory_id)
+        )
+    ''')
+
+    # Insert data into the new database
+    new_cur.executemany('INSERT INTO advisories VALUES (?, ?, ?, ?, ?, ?)', filtered_advisories)
+    new_cur.executemany('INSERT INTO advisory_package VALUES (?, ?, ?, ?, ?)', advisory_package)
+
+    # Commit and close connections
+    new_con.commit()
+    new_con.close()
+    old_con.close()
+
 
 def main():
     if not os.path.exists(DATA_PATH):
@@ -166,6 +221,9 @@ def main():
     schedule.every().day.do(update_repo)
 
     update_repo() # Run it once first
+    print("Updated the db")
+    fetchAllCVEs()
+    print("Created new db")
 
     while True:
         schedule.run_pending()
