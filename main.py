@@ -13,6 +13,7 @@ DATA_PATH = 'data/'
 LOCAL_PATH = os.path.join(DATA_PATH, 'advisory-database')
 DB_PATH = os.path.join(DATA_PATH, 'advisory.db')
 CWE_PATH = os.path.join(DATA_PATH, 'cwe_list.csv')
+CVE_PATH = os.join.path(DATA_PATH,'allCVEs.db')
 
 
 def get_path(data, path, default=None):
@@ -173,7 +174,7 @@ def fetchAllCVEs():#simplified db to get only basic information
     advisory_package = old_cur.fetchall()
 
     # Connect to the new database (filtered_advisory.db)
-    new_con = sqlite3.connect(DATA_PATH + 'filtered_advisory.db')
+    new_con = sqlite3.connect(CVE_PATH)
     new_cur = new_con.cursor()
 
     # Create tables in the new database
