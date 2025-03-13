@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 db = SQLAlchemy()
 
-from models import Cwe, Advisory, Package
+from models import Cwe, Advisory, Package, Cve
 
 REPO_URL = 'https://github.com/github/advisory-database.git'
 DATA_PATH = 'data'
@@ -52,6 +52,33 @@ def load_cwe_data():
     db.session.commit()
 
     return True
+
+def addCVEsToDB():
+    print("Creating CVE section")
+
+    # Retrieve advisories from the database
+    advisories = Advisory.query.all()  # Fetch all existing advisories
+
+    # Iterate through advisories to create and add CVE objects
+    for advisory in advisories:
+        # Create a new CVE object using advisory data
+        cve = Cve(
+            advisory_id=advisory.advisory_id,
+            severity=advisory.severity,
+            cve_id=advisory.cve_id,
+            published=advisory.published,
+            modified=advisory.modified,
+            withdrawn=advisory.withdrawn,
+            packages=advisory.packages  # Reuse package relationship
+        )
+        
+        # Merge or add the CVE object to the database
+        db.session.merge(cve)
+
+    # Commit changes to persist CVE objects in the database
+    db.session.commit()
+    print("Created a CVE section")
+
 
 def init_repo() -> bool:
     if repo_exists():
