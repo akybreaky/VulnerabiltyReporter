@@ -1,5 +1,8 @@
 from app import app
+from models import *
 
 @app.route('/')
 def index():
-    return "Welcome to the Advisory Database API!"
+    cwe = Cwe.query.get(77)
+
+    return f"Testing DB call to CWE-77:<br><br>ID: {cwe.cwe_id}<br>Name: {cwe.name}<br>Description: {cwe.description}"

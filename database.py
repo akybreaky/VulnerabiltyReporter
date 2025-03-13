@@ -21,11 +21,20 @@ REPO_PATH = os.path.join(DATA_PATH, 'advisory-database')
 DB_PATH = os.path.join(DATA_PATH, 'advisory.db')
 CWE_PATH = os.path.join(DATA_PATH, 'cwe_list.xml')
 
-def init_db():
-    return update_repo() and load_cwe_data() and repo_to_db()
+
+def init_or_update_db() -> bool:
+    try:
+        load_cwe_data()
+        if update_repo():
+            load_repo_data()
+    except Exception as e:
+        print(f"{e}", file=sys.stderr)
+        return False
+
+    return True
 
 def load_cwe_data():
-    if not os.path.exists(CWE_PATH):
+    if not cwe_list_exists():
         print("CWE file not found...", file=sys.stderr)
         return False
 
@@ -44,31 +53,44 @@ def load_cwe_data():
 
     return True
 
-def update_repo() -> bool:
-    if not os.path.exists(REPO_PATH):
-        try:
-            print("Cloning Advisory Database...")
-            subprocess.run(['git', 'clone', REPO_URL, REPO_PATH, '--depth=1', '-b','main', '--single-branch'], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: Failed to clone the repository.\n{e}", file=sys.stderr)
-            return False
+def init_repo() -> bool:
+    if repo_exists():
+        return True
 
-    else:
-        old_path = os.getcwd()
-        os.chdir(REPO_PATH)
-        try:
-            print("Updating Advisory Database...")
-            subprocess.run(['git', 'pull'], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: Failed to pull the latest changes.\n{e}", file=sys.stderr)
-            os.chdir(old_path) # Return to the original directory
-            return False
-
-        os.chdir(old_path) # Return to the original directory
+    try:
+        print("Cloning Advisory Database...")
+        subprocess.run(['git', 'clone', REPO_URL, REPO_PATH, '--depth=1', '-b', 'main', '--single-branch'],
+                       check=True)
+    except subprocess.CalledProcessError as e:
+        raise Exception("Failed to clone the advisory repository") from e
 
     return True
 
-def repo_to_db() -> bool:
+
+def update_repo() -> bool:
+    if not repo_exists():
+        return init_repo()
+
+    print("Updating Advisory Database...")
+
+    old_path = os.getcwd()
+    os.chdir(REPO_PATH)
+    try:
+        output = subprocess.check_output(['git', 'pull'])
+        print(output.decode('utf-8'))
+    except subprocess.CalledProcessError as e:
+        os.chdir(old_path) # Return to the original directory
+        raise Exception("Failed to pull the latest changes in the advisory-database") from e
+
+    os.chdir(old_path) # Return to the original directory
+
+    # If output contains "Already up to date.", we don't need to update the local db
+    if b'Already up to date.' in output:
+        print("Local database is already up to date.")
+        return False
+    return True
+
+def load_repo_data() -> bool:
     if not os.path.exists(REPO_PATH):
         if not update_repo():
             return False
@@ -101,8 +123,8 @@ def repo_to_db() -> bool:
         )
 
         for cwe in value['database_specific']['cwe_ids']:
-            val: str | None= Cwe.query.get(cwe[4:]) # Get the cwe_id without the "CWE-" prefix
-            if val:
+            val: Cwe | None = Cwe.query.get(cwe[4:]) # Get the cwe_id without the "CWE-" prefix
+            if val is not None:
                 advisory.cwes.append(val)
             else:
                 not_found_cwes.add(int(cwe[4:]))
@@ -136,3 +158,8 @@ def repo_to_db() -> bool:
     print("Local database updated successfully.")
     return True
 
+def repo_exists() -> bool:
+    return os.path.exists(REPO_PATH)
+
+def cwe_list_exists() -> bool:
+    return os.path.exists(CWE_PATH)
