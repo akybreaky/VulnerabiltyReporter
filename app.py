@@ -20,7 +20,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.init_app(app)
         db.create_all()
-        if sys.argv[1] == '--no-update':
+        if len(sys.argv) > 1 and sys.argv[1] == '--no-update':
             print("Skipping database update... (because of --no-update)\n")
         else:
             init_or_update_db()
