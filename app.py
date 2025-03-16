@@ -7,16 +7,12 @@ from flask_apscheduler import APScheduler
 FLASK_ADVISORY_BIND = 'advisorydb'
 FLASK_CVE_BIND = 'cvedb'
 from flask import Flask
-from database import init_or_update_db,addCVEsToDB
+from database import init_or_update_db,fetchAllCVEs
 from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///advisory.db'
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///advisory.db'
-app.config['SQLALCHEMY_BINDS'] = {
-    FLASK_ADVISORY_BIND: 'sqlite:///advisory.db',
-    FLASK_CVE_BIND: 'sqlite:///cve.db'
-}
+
 
 
 scheduler = APScheduler()
@@ -32,11 +28,14 @@ def update_all() -> bool:
 if __name__ == '__main__':
     with app.app_context():
         db.init_app(app)
-        db.create_all(bind_key=FLASK_ADVISORY_BIND)
+        db.create_all()
         if len(sys.argv) > 1 and sys.argv[1] == '--no-update':
             print("Skipping database update... (because of --no-update)\n")
         else:
             init_or_update_db()
+            ids = fetchAllCVEs()
+            for value in ids:
+                print(value)
 
         scheduler.init_app(app)
         scheduler.start()
