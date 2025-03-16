@@ -17,13 +17,13 @@ class Advisory(db.Model):
     modified = db.Column(db.DateTime, nullable=False)
     withdrawn = db.Column(db.DateTime, default=None)
     cwes = db.relationship('Cwe', secondary=advisory_cwe, back_populates='advisories')
-    packages = db.relationship('Package', backref='advisory', lazy=True)
+    packages = db.relationship('Package', backref='advisory', cascade='all, delete-orphan')
 
 class Cwe(db.Model):
     cwe_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    advisories = db.relationship('Advisory', secondary=advisory_cwe, back_populates='cwes')
+    advisories = db.relationship('Advisory', secondary=advisory_cwe, back_populates='cwes', lazy=True)
 
 class Package(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)

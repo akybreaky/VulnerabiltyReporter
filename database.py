@@ -152,7 +152,7 @@ def load_repo_data() -> bool:
         if not_found_cwes:
             print(f"Warning: The following CWEs were not found in the database: {sorted(not_found_cwes)}")
 
-        db.session.merge(advisory)
+        db.session.add(advisory)
 
     db.session.commit()
     print("Local database updated successfully.")
