@@ -164,10 +164,51 @@ def fetchAllCVEs():
     print("Fetching all CVEs")
     cve_ids = db.session.query(Advisory.cve_id).all()
 
-    # Extract cve_id values from the query result and store them in an array
     cve_id_array = [cve_id[0] for cve_id in cve_ids if cve_id[0] is not None]
 
     return cve_id_array
+
+def fetchAllCWEs():
+    if not db_exists():
+        init_or_update_db()
+    print("Fetching all CWEs")
+    cwe_ids = db.session.query(Cwe.cwe_id).all()
+
+    cwe_id_array = [cwe_id[0] for cwe_id in cwe_ids if cwe_id[0] is not None]
+
+    return cwe_id_array
+
+def  filterCVEs(filter_key):
+    if (filter_key == 'severity'):
+        print()
+        #filter by severity, highest first, lowest  last
+    elif(filter_key == 'project'):
+        return getProjectCVEs()
+        #each project is bundled with all its CVEs
+    elif(filter_key == 'published'):
+        print()
+        #in chronological order
+    elif(filter_key ==  'withdrawn'):
+        print()
+        #in chronological order
+    
+def getProjectCVEs():
+    results = db.session.query(Package.package_name, Advisory.cve_id) \
+                        .join(Advisory, Package.advisory_id == Advisory.advisory_id) \
+                        .all()
+    #transform results into dicts for python usage
+    projectCVEs = []
+    for package_name, cve_id in results:
+        projectCVEs.append({
+            "project": package_name,
+            "cve_id": cve_id
+        })
+    #remove duplicate project entries and glue the CVEs together
+    output = []
+    for project, cves in projectCVEs.items():
+        output.append({"project": project,"cve_ids": cves})
+    return output
+
      
 
 def repo_exists() -> bool:

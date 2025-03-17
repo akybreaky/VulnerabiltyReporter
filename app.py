@@ -4,8 +4,6 @@ from flask import Flask
 from database import init_or_update_db
 from flask_apscheduler import APScheduler
 
-FLASK_ADVISORY_BIND = 'advisorydb'
-FLASK_CVE_BIND = 'cvedb'
 from flask import Flask
 from database import init_or_update_db,fetchAllCVEs
 from flask_apscheduler import APScheduler
