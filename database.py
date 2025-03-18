@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+from sqlalchemy import text,case
 
 import utils
 from utils import get_path, str_to_date
@@ -178,19 +178,58 @@ def fetchAllCWEs():
 
     return cwe_id_array
 
-def  filterCVEs(filter_key):
-    if (filter_key == 'severity'):
-        print()
-        #filter by severity, highest first, lowest  last
-    elif(filter_key == 'project'):
-        return getProjectCVEs()
-        #each project is bundled with all its CVEs
-    elif(filter_key == 'published'):
+def filterCVEs(filters: dict):
+    """Filters CVEs based on a dictionary of filters. (e.g. {'severity': 'high', 'projectName': 'example', 'orderBy': 'published', 'order': 'desc'})"""
+    q = db.session.query(Advisory)
+    orderBy = Advisory.advisory_id
+    ascending = True
+    #assign values to severity scores for ordering
+    severity_order = case(
+        value=Advisory.severity,
+        whens={
+            'LOW': 1,
+            'MODERATE': 2,
+            'HIGH': 3,
+            'CRITICAL': 4,
+        }
+    )
+    if 'severity' in filters:
+        q = q.filter(Advisory.severity == filters['severity'])
+
+    if 'projectName' in filters:
+        q = q.join(Package).filter(Package.package_name == filters['projectName'])
+
+    if 'orderBy' in filters:
+        if filters['orderBy'] == 'severity':
+            orderBy = severity_order
+        elif filters['orderBy'] == 'published':
+            orderBy = Advisory.published
+        elif filters['orderBy'] == 'modified':
+            orderBy = Advisory.modified
+        elif filters['orderBy'] == 'withdrawn':
+            orderBy = Advisory.withdrawn
+        elif filters['orderBy'] == 'advisory_id':
+            orderBy = Advisory.advisory_id
+        elif filters['orderBy'] == 'cve_id':
+            orderBy = Advisory.cve_id
+
+    if 'order' in filters:
+        if filters['order'] == 'desc':
+            ascending = False
+        elif filters['order'] == 'asc':
+            ascending = True
+
+    if 'withdrawn' in filters:
         print()
         #in chronological order
-    elif(filter_key ==  'withdrawn'):
-        print()
-        #in chronological order
+
+
+    if ascending:
+        q.order_by(orderBy.asc())
+    else:
+        q.order_by(orderBy.desc())
+
+    return q.all()
     
 def getProjectCVEs():
     results = db.session.query(Package.package_name, Advisory.cve_id) \
