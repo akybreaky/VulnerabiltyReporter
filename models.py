@@ -1,5 +1,6 @@
 from database import db
 
+
 advisory_cwe = db.Table(
     'advisory_cwe',
     db.Column('advisory_id', db.String, db.ForeignKey('advisory.advisory_id'), primary_key=True),

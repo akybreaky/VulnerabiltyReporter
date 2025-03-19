@@ -4,8 +4,15 @@ from flask import Flask
 from database import init_or_update_db
 from flask_apscheduler import APScheduler
 
+from flask import Flask
+from database import init_or_update_db,fetchAllCVEs
+from flask_apscheduler import APScheduler
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///advisory.db'
+app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///advisory.db'
+
+
+
 scheduler = APScheduler()
 
 from routes import *
@@ -24,6 +31,9 @@ if __name__ == '__main__':
             print("Skipping database update... (because of --no-update)\n")
         else:
             init_or_update_db()
+            ids = fetchAllCVEs()
+            for value in ids:
+                print(value)
 
         scheduler.init_app(app)
         scheduler.start()
