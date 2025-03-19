@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text,case
+from sqlalchemy import text,case,func
 
 import utils
 from utils import get_path, str_to_date
@@ -211,7 +211,9 @@ def filterCVEs(filters: dict):
         elif filters['orderBy'] == 'advisory_id':
             orderBy = Advisory.advisory_id
         elif filters['orderBy'] == 'cve_id':
-            orderBy = Advisory.cve_id
+            year_part = func.substring(Advisory.cve_id, 5, 4)
+            number_part = func.substring(Advisory.cve_id, 10)
+            orderBy = func.cast(year_part, db.Integer).asc(), func.cast(number_part, db.Integer).asc()
 
     if 'order' in filters:
         if filters['order'] == 'desc':
