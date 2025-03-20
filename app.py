@@ -5,7 +5,8 @@ from database import init_or_update_db
 from flask_apscheduler import APScheduler
 
 from flask import Flask
-from database import init_or_update_db,fetchAllCVEs
+from database import init_or_update_db
+import helpers
 from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
@@ -31,9 +32,7 @@ if __name__ == '__main__':
             print("Skipping database update... (because of --no-update)\n")
         else:
             init_or_update_db()
-            ids = fetchAllCVEs()
-            for value in ids:
-                print(value)
+            
 
         scheduler.init_app(app)
         scheduler.start()
