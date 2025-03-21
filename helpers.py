@@ -1,14 +1,8 @@
-import glob
-import json
-import os
-import subprocess
-import sys
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text,case,func
+from database import db_exists,init_or_update_db
 
-import utils
-from utils import get_path, str_to_date
 import xml.etree.ElementTree as ET
 
 db = SQLAlchemy()
@@ -17,6 +11,7 @@ from models import Cwe, Advisory, Package
 
 
 def fetchAllCVEs():
+    """Fetches all cve-ids (which means any entry with no cve-id will be discarded), return them as a string array"""
     if not db_exists():
         init_or_update_db()
     print("Fetching all CVEs")
@@ -27,6 +22,7 @@ def fetchAllCVEs():
     return cve_id_array
 
 def fetchAllCWEs():
+    """Fetches all cwe-ids, return them as a string array"""
     if not db_exists():
         init_or_update_db()
     print("Fetching all CWEs")
@@ -97,6 +93,7 @@ def filterCVEs(filters: dict):
     return q.all()
     
 def getProjectCVEs():
+    """Group all advisory entries (so entries with no cve-id will still be considered) by project, returns a string tuple array"""
     results = db.session.query(Package.package_name, Advisory.cve_id) \
                         .join(Advisory, Package.advisory_id == Advisory.advisory_id) \
                         .all()

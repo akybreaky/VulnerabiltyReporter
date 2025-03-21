@@ -17,6 +17,7 @@ from models import Cwe, Advisory, Package
 
 REPO_URL = 'https://github.com/github/advisory-database.git'
 DATA_PATH = 'data'
+#os.path.join is to ensure crossplatform compatibility
 REPO_PATH = os.path.join(DATA_PATH, 'advisory-database')
 DB_PATH = os.path.join(DATA_PATH, 'advisory.db')
 CWE_PATH = os.path.join(DATA_PATH, 'cwe_list.xml')
@@ -54,6 +55,7 @@ def load_cwe_data():
     return True
 
 def init_repo() -> bool:
+    """This clones the github repo in the project"""
     if repo_exists():
         return True
 
@@ -68,6 +70,7 @@ def init_repo() -> bool:
 
 
 def update_repo() -> bool:
+    """This updates the advisory repo"""
     if not repo_exists():
         return init_repo()
 
