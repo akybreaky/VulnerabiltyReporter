@@ -34,6 +34,7 @@ def cve_trend():
         .filter(Advisory.published >= datetime(start_year, 1, 1))
         .all()
     )
+
     # Count CVEs per year using regex on CVE IDs
     for advisory in advisories:
         match = re.match(rf'{prefix}-(\d{{4}})-\d+', advisory.cve_id)
@@ -53,3 +54,21 @@ def cve_trend():
     ax.set_ylabel("Number of CVEs")
     plt.xticks(years, rotation=45)
     plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    chart_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    plt.close()
+
+    return render_template(
+        'cve_trend.html',
+        prefix=prefix,
+        start_year=start_year,
+        end_year=current_year,
+        chart=chart_base64,
+        year_counts=year_counts
+    )
+
+
+
