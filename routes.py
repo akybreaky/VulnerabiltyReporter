@@ -34,3 +34,22 @@ def cve_trend():
         .filter(Advisory.published >= datetime(start_year, 1, 1))
         .all()
     )
+    # Count CVEs per year using regex on CVE IDs
+    for advisory in advisories:
+        match = re.match(rf'{prefix}-(\d{{4}})-\d+', advisory.cve_id)
+        if match:
+            year = int(match.group(1))
+            if start_year <= year <= current_year:
+                year_counts[year] += 1
+
+    # Create bar chart
+    years = list(year_counts.keys())
+    counts = list(year_counts.values())
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.bar(years, counts, color='#3478c0')
+    ax.set_title("Annual Distribution of Published CVE Records (Last 10 Years)")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Number of CVEs")
+    plt.xticks(years, rotation=45)
+    plt.tight_layout()
