@@ -1,7 +1,11 @@
-from sqlalchemy import func
-
+import re
 from app import app
+from flask import render_template
 from models import *
+from matplotlib import pyplot as plt
+
+from datetime import datetime
+from sqlalchemy import func
 
 @app.route('/')
 def index():
