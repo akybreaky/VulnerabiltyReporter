@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ prefix }} Trend ({{ start_year }} – {{ end_year }})</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ff6600;
+            --background-gradient: linear-gradient(135deg, #1e3c72, #2a5298);
+            --card-background: rgba(255, 255, 255, 0.95);
+            --text-color: #ffffff;
+            --table-header: #0069d9;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            line-height: 1.6;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 6px 15px var(--shadow-color);
+            padding: 30px;
+            margin-bottom: 35px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid var(--primary-color);
+        }
+
+        .table-title {
+            color: var(--secondary-color);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: var(--card-background);
+            box-shadow: 0 3px 10px var(--shadow-color);
+            color: #333;
+        }
+
+        table th,
+        table td {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: var(--table-header);
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #ffd166;
+            color: #000;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 17px;
+            margin-top: 25px;
+            color: #ddd;
+            padding: 20px;
+            border-top: 3px solid var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: 0 3px 10px var(--shadow-color);
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+
+        .footer strong {
+            color: var(--secondary-color);
+        }
+
+        .interactive-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .interactive-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            table th,
+            table td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>{{ prefix }} Trend ({{ start_year }} – {{ end_year }})</h1>
+
+        <div class="card">
+            <img src="data:image/png;base64,{{ chart }}" alt="CVE Trend Chart">
+        </div>
+
+        <div class="card">
+            <div class="table-title">Yearly CVE Counts</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Number of CVEs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for year, count in year_counts.items() %}
+                    <tr onclick="alert('Year: {{ year }} | CVEs: {{ count }}')">
+                        <td>{{ year }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <button class="interactive-button" onclick="alert('Interactivity works!')">Click Me</button>
+
+        <div class="footer">
+            CVE data shown for prefix <strong>{{ prefix }}</strong> over the last 10 years.
+        </div>
+    </div>
+</body>
+
+</html>

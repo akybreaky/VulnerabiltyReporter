@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<!-- Dummy head-->
+
+    <meta charset="UTF-8">
+    <title>{{ prefix }} Trend ({{ start_year }} – {{ end_year }})</title>
+    <style>
+
+:root {
+    --primary-color: #007bff;
+    --background-color: #f4f6f9;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --table-header: #0069d9;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+.card {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-bottom: 35px;
+}
+
+.card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.table-title {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+table th, table td {
+    padding: 14px 18px;
+    text-align: center;
+}
+
+table th {
+    background-color: var(--table-header);
+    color: #fff;
+    font-size: 1em;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table tr:hover {
+    background-color: #e9f1ff;
+}
+
+
+    </style>
+
+    
+
+
+
+
+
+
+</head>
+<body>
+
+    <div class="container">
+        <h1>{{ prefix }} Trend ({{ start_year }} – {{ end_year }})</h1>
+    
+        <div class="card">
+            <img src="data:image/png;base64,{{ chart }}" alt="CVE Trend Chart">
+        </div>
+    
+        <div class="card">
+            <div class="table-title">Yearly CVE Counts</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Number of CVEs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for year, count in year_counts.items() %}
+                    <tr>
+                        <td>{{ year }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    
+        <div class="footer">
+            CVE data shown for prefix <strong>{{ prefix }}</strong> over the last 10 years.
+        </div>
+    </div>
+    
+</body>
+
+
+
+
+</html>
